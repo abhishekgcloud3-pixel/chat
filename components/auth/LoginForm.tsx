@@ -1,0 +1,10 @@
+'use client'
+
+export default function LoginForm() {
+  return (
+    <div>
+      <h1>Login Form</h1>
+      <p>Authentication form component</p>
+    </div>
+  )
+}
