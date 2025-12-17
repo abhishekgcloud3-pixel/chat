@@ -44,6 +44,8 @@ export async function getUserConversations(
   return ConversationModel.getUserConversations(objectId, limit, skip)
 }
 
+// Custom implementation with proper lastMessage population - removed since model handles it
+
 /**
  * Get messages for a conversation with pagination
  */
