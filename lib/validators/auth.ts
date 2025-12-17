@@ -10,3 +10,7 @@ export function validatePassword(password: string): boolean {
 export function validateName(name: string): boolean {
   return name.trim().length >= 2
 }
+
+export function validateOTP(otp: string): boolean {
+  return /^\d{6}$/.test(otp.trim())
+}
