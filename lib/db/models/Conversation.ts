@@ -106,11 +106,17 @@ ConversationSchema.statics.getUserConversations = async function (
   return this.find({
     participantIds: { $in: [userId] },
   })
-    .sort({ updatedAt: -1 })
+    .sort({ lastMessageTime: -1, updatedAt: -1 })
     .limit(limit)
     .skip(skip)
     .populate('participantIds', 'name email avatar')
-    .populate('lastMessage')
+    .populate({
+      path: 'lastMessage',
+      populate: {
+        path: 'senderId',
+        select: 'name email avatar'
+      }
+    })
 }
 
 export default mongoose.models.Conversation || mongoose.model<IConversation>('Conversation', ConversationSchema)
