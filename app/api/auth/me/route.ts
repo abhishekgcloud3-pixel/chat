@@ -1,61 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { connectDB } from '@/lib/db/connection'
 import User from '@/lib/db/models/User'
-import { verifyAuth } from '@/lib/middleware/auth'
+import { withAuthGET } from '@/lib/middleware/auth'
+import { AuthenticationError } from '@/lib/errors/ApiError'
+import { NotFoundError } from '@/lib/errors/ApiError'
+import { successResponse } from '@/lib/errors/handlers'
 
-export async function GET(req: NextRequest): Promise<NextResponse> {
-  try {
-    // Verify authentication
-    const payload = await verifyAuth(req)
-    if (!payload) {
-      return NextResponse.json(
-        { error: 'Unauthorized', message: 'Invalid or missing authentication token' },
-        { status: 401 }
-      )
-    }
+export const GET = withAuthGET(async (req) => {
+  await connectDB()
 
-    // Ensure database connection
-    await connectDB()
-
-    // Get user ID from token payload
-    const userId = payload.userId
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'User ID not found in token' },
-        { status: 401 }
-      )
-    }
-
-    // Find user by ID
-    const user = await User.findById(userId)
-
-    if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      )
-    }
-
-    // Return user profile
-    return NextResponse.json({
-      success: true,
-      user: {
-        id: user._id.toString(),
-        email: user.email,
-        mobileNumber: user.mobileNumber || undefined,
-        name: user.name || undefined,
-        avatar: user.avatar || undefined,
-        isActive: user.isActive,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-      },
-    })
-  } catch (error) {
-    console.error('Error fetching user profile:', error)
-
-    return NextResponse.json(
-      { error: 'Internal server error', message: 'Failed to fetch user profile' },
-      { status: 500 }
-    )
+  // Get user ID from authenticated request
+  const userId = req.userId
+  if (!userId) {
+    throw new AuthenticationError('User ID not found in token')
   }
-}
+
+  // Find user by ID
+  const user = await User.findById(userId)
+
+  if (!user) {
+    throw new NotFoundError('User not found')
+  }
+
+  // Return user profile
+  return successResponse({
+    user: {
+      id: user._id.toString(),
+      email: user.email,
+      mobileNumber: user.mobileNumber || undefined,
+      name: user.name || undefined,
+      avatar: user.avatar || undefined,
+      isActive: user.isActive,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    },
+  })
+})
