@@ -1,12 +1,26 @@
 import nodemailer from 'nodemailer'
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-})
+let transporter: nodemailer.Transporter | null = null
+
+function getEmailAuth(): { user: string; pass: string } | null {
+  const user = process.env.GMAIL_USER || process.env.EMAIL_USER
+  const pass = process.env.GMAIL_PASS || process.env.EMAIL_PASSWORD
+
+  if (!user || !pass) return null
+
+  return { user, pass }
+}
+
+function getTransporter(auth: { user: string; pass: string }): nodemailer.Transporter {
+  if (transporter) return transporter
+
+  transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth,
+  })
+
+  return transporter
+}
 
 export interface SendEmailOptions {
   to: string
@@ -17,8 +31,18 @@ export interface SendEmailOptions {
 
 export async function sendEmail({ to, subject, text, html }: SendEmailOptions) {
   try {
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+    const auth = getEmailAuth()
+
+    if (!auth) {
+      throw new Error(
+        'Email credentials are not configured. Set GMAIL_USER/GMAIL_PASS (or EMAIL_USER/EMAIL_PASSWORD).'
+      )
+    }
+
+    const from = process.env.EMAIL_FROM || auth.user
+
+    await getTransporter(auth).sendMail({
+      from,
       to,
       subject,
       text,
