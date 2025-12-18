@@ -8,20 +8,32 @@ import { useMessageSync } from './messageSync'
 
 export interface Conversation {
   id: string
-  participantIds: string[]
-  lastMessage?: {
-    id: string
-    content: string
-    createdAt: string
-    senderId: string
-  }
-  lastMessageTime?: string
-  participantDetails: Array<{
+  participants?: Array<{
     id: string
     name: string
     email: string
     avatar?: string | null
   }>
+  participantIds?: string[]
+  participantDetails?: Array<{
+    id: string
+    name: string
+    email: string
+    avatar?: string | null
+  }>
+  lastMessage?: {
+    id: string
+    content: string
+    createdAt: string
+    senderId: string
+    imageUrl?: string | null
+    sender?: {
+      id: string
+      name: string
+      avatar?: string | null
+    }
+  }
+  lastMessageTime?: string
   unreadCount?: number
   createdAt: string
   updatedAt: string
@@ -75,7 +87,7 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
     try {
       const response = await fetch('/api/conversations', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
         }
       })
 

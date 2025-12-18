@@ -100,7 +100,7 @@ export function useMessages(options: UseMessagesOptions): UseMessagesReturn {
     try {
       const response = await fetch(`/api/messages/conversation/${conversationId}?limit=${initialLimit}&skip=${currentSkip}`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
         }
       })
 
@@ -229,7 +229,7 @@ export function useMessages(options: UseMessagesOptions): UseMessagesReturn {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
         },
         body: JSON.stringify({
           conversationId,
@@ -270,7 +270,7 @@ export function useMessages(options: UseMessagesOptions): UseMessagesReturn {
       const response = await fetch(`/api/messages/${messageId}/seen`, {
         method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
         }
       })
 

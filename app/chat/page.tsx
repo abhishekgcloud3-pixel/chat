@@ -1,76 +1,59 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useConversations } from '@/lib/hooks/useConversations'
 import { useAuth } from '@/lib/hooks/useAuth'
-import Spinner from '@/components/ui/Spinner'
+import ConversationList from '@/components/ConversationList'
 import Button from '@/components/ui/Button'
+import Spinner from '@/components/ui/Spinner'
 
 export default function ChatPage() {
-  const { user, isAuthenticated, isLoading, logout } = useAuth()
   const router = useRouter()
+  const { user } = useAuth()
+  const { conversations, isLoading } = useConversations({
+    enabled: true,
+    pollInterval: 3000,
+  })
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/')
-    }
-  }, [isAuthenticated, isLoading, router])
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Spinner size="lg" />
-      </div>
-    )
+  const handleSelectConversation = (conversationId: string) => {
+    setSelectedConversationId(conversationId)
+    router.push(`/chat/${conversationId}`)
   }
 
-  if (!isAuthenticated) {
-    return null
+  const handleNewConversation = () => {
+    router.push('/chat/new')
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Chat</h1>
-            <p className="text-sm text-gray-600">Welcome, {user?.name || user?.email}</p>
-          </div>
-          <Button onClick={logout} variant="secondary">
+    <div className="w-full md:w-96 h-full bg-white border-r border-gray-200 flex flex-col">
+      <div className="border-b border-gray-200 p-4 flex-shrink-0">
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-bold text-gray-900">Chat</h1>
+          <Button
+            onClick={() => router.push('/')}
+            variant="secondary"
+            className="px-3 py-2 text-sm"
+          >
             Logout
           </Button>
         </div>
-      </header>
+        {user && (
+          <p className="text-sm text-gray-600 truncate">
+            {user.name || user.email}
+          </p>
+        )}
+      </div>
 
-      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold mb-4">Your Profile</h2>
-          <div className="space-y-3">
-            {user?.avatar && (
-              <div className="flex items-center space-x-4">
-                <img
-                  src={user.avatar}
-                  alt="Avatar"
-                  className="w-16 h-16 rounded-full object-cover"
-                />
-              </div>
-            )}
-            <p>
-              <span className="font-medium">Email:</span> {user?.email}
-            </p>
-            {user?.name && (
-              <p>
-                <span className="font-medium">Name:</span> {user.name}
-              </p>
-            )}
-            {user?.mobileNumber && (
-              <p>
-                <span className="font-medium">Mobile:</span> {user.mobileNumber}
-              </p>
-            )}
-          </div>
-        </div>
-      </main>
+      <ConversationList
+        conversations={conversations}
+        isLoading={isLoading}
+        selectedConversationId={selectedConversationId || undefined}
+        onSelectConversation={handleSelectConversation}
+        onNewConversation={handleNewConversation}
+        className="flex-grow"
+      />
     </div>
   )
 }
