@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
+import { AuthenticationError } from '@/lib/errors/ApiError'
 
 /**
  * JWT Payload type

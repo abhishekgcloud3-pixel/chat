@@ -6,12 +6,14 @@ import AuthLayout from '@/components/AuthLayout'
 import Button from '@/components/ui/Button'
 import Spinner from '@/components/ui/Spinner'
 import { useAuth } from '@/lib/hooks/useAuth'
+import { useErrorHandler } from '@/lib/hooks/useErrorHandler'
 
 export default function OTPVerifyPage() {
   const searchParams = useSearchParams()
   const email = searchParams.get('email')
   const router = useRouter()
   const { login } = useAuth()
+  const { handleError } = useErrorHandler()
 
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
   const [error, setError] = useState('')
@@ -98,18 +100,21 @@ export default function OTPVerifyPage() {
         if (data.remainingAttempts !== undefined) {
           setRemainingAttempts(data.remainingAttempts)
         }
-        throw new Error(data.message || data.error || 'Failed to verify OTP')
+        handleError(data, 'OTP Verification')
+        setOtp(['', '', '', '', '', ''])
+        inputRefs.current[0]?.focus()
+        return
       }
 
-      login(data.token, data.user)
+      login(data.data.token, data.data.user)
 
-      if (data.requiresMobile) {
+      if (data.data.requiresMobile) {
         router.push('/add-mobile')
       } else {
         router.push('/chat')
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to verify OTP')
+      handleError(err, 'OTP Verification')
       setOtp(['', '', '', '', '', ''])
       inputRefs.current[0]?.focus()
     } finally {
@@ -135,7 +140,8 @@ export default function OTPVerifyPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to resend OTP')
+        handleError(data, 'Resend OTP')
+        return
       }
 
       setResendCooldown(30)
@@ -143,7 +149,7 @@ export default function OTPVerifyPage() {
       setRemainingAttempts(null)
       inputRefs.current[0]?.focus()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to resend OTP')
+      handleError(err, 'Resend OTP')
     } finally {
       setIsLoading(false)
     }
