@@ -41,3 +41,58 @@ export interface Conversation {
   updatedAt: Date
   unreadCount?: number
 }
+
+// WebRTC Call types
+export enum CallStatus {
+  RINGING = 'ringing',
+  ACTIVE = 'active',
+  DECLINED = 'declined',
+  MISSED = 'missed',
+  FAILED = 'failed',
+  ENDED = 'ended',
+}
+
+export interface Call {
+  id: string
+  callId: string
+  initiatorId: string
+  recipientId: string
+  conversationId: string
+  status: CallStatus
+  startTime?: Date
+  endTime?: Date
+  duration?: number
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface CallLog {
+  id: string
+  callId: string
+  initiatorId: string
+  recipientId: string
+  conversationId: string
+  status: CallStatus
+  startTime?: Date
+  endTime?: Date
+  duration?: number
+  createdAt: Date
+  updatedAt: Date
+}
+
+export interface IncomingCallNotification {
+  callId: string
+  initiatorId: string
+  initiatorName: string
+  initiatorAvatar?: string
+  conversationId: string
+}
+
+export interface CallStats {
+  totalCalls: number
+  completedCalls: number
+  missedCalls: number
+  declinedCalls: number
+  totalDuration: number
+  avgDuration: number
+}

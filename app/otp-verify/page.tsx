@@ -214,7 +214,7 @@ export default function OTPVerifyPage() {
 
         <div className="text-center space-y-2">
           <p className="text-sm text-gray-600">
-            Didn't receive the code?
+            Didn&apos;t receive the code?
           </p>
           <button
             type="button"

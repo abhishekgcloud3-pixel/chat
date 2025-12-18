@@ -9,17 +9,22 @@ import clsx from 'clsx'
 
 interface ChatInputProps {
   onSend: (content: string, imageUrl?: string) => Promise<void>
+  onCall?: () => Promise<void>
   disabled?: boolean
+  isInCall?: boolean
   placeholder?: string
 }
 
 export default function ChatInput({
   onSend,
+  onCall,
   disabled = false,
+  isInCall = false,
   placeholder = 'Type a message...',
 }: ChatInputProps) {
   const [content, setContent] = useState('')
   const [isSending, setIsSending] = useState(false)
+  const [isCallLoading, setIsCallLoading] = useState(false)
   const [selectedImage, setSelectedImage] = useState<{
     url: string
     file: File
@@ -87,8 +92,20 @@ export default function ChatInput({
     }
   }
 
+  const handleCall = async () => {
+    if (!onCall || isInCall || isCallLoading) return
+    setIsCallLoading(true)
+    try {
+      await onCall()
+    } catch (error) {
+      console.error('Failed to initiate call:', error)
+    } finally {
+      setIsCallLoading(false)
+    }
+  }
+
   const isEmpty = !content.trim() && !selectedImage
-  const isLoading = isSending || isImageUploading
+  const isLoading = isSending || isImageUploading || isCallLoading
 
   return (
     <div className="bg-white border-t border-gray-200 p-4 flex-shrink-0">
@@ -144,6 +161,27 @@ export default function ChatInput({
             </svg>
           )}
         </button>
+
+        {onCall && (
+          <button
+            onClick={handleCall}
+            disabled={disabled || isInCall || isCallLoading || isImageUploading || isSending}
+            className="flex-shrink-0 p-2 text-gray-500 hover:text-green-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Start voice call"
+          >
+            {isCallLoading ? (
+              <Spinner size="sm" />
+            ) : (
+              <svg
+                className="w-6 h-6"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M17.707 12.293l-5.293-5.293a1 1 0 00-1.414 1.414L14.586 11H3a1 1 0 000 2h11.586l-3.586 3.586a1 1 0 101.414 1.414l5.293-5.293a1 1 0 000-1.414zM18 2a1 1 0 011 1v4a1 1 0 01-2 0V3a1 1 0 011-1zm0 12a1 1 0 011 1v4a1 1 0 01-2 0v-4a1 1 0 011-1z" />
+              </svg>
+            )}
+          </button>
+        )}
 
         <div className="flex-grow min-h-10 bg-gray-100 rounded-lg px-4 py-2 flex items-center">
           <textarea

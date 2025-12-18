@@ -10,7 +10,7 @@ export default function NotFound() {
             Conversation not found
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            The conversation you're looking for doesn't exist or you don't have permission to view it.
+            The conversation you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to view it.
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
