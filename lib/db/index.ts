@@ -3,6 +3,8 @@ export { default as User, type IUser } from './models/User'
 export { default as OTP, type IOTP } from './models/OTP'
 export { default as Conversation, type IConversation } from './models/Conversation'
 export { default as Message, type IMessage, MessageStatus } from './models/Message'
+export { default as Call, type ICall, CallState } from './models/Call'
+export { default as CallLog, type ICallLog, CallStatus } from './models/CallLog'
 
 // Export connection function
 export { connectDB, disconnectDB } from './connection'

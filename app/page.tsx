@@ -102,7 +102,7 @@ export default function LoginPage() {
         </Button>
 
         <div className="text-center text-sm text-gray-600">
-          <p>We'll send a 6-digit code to your email</p>
+          <p>We&apos;ll send a 6-digit code to your email</p>
         </div>
       </form>
     </AuthLayout>
